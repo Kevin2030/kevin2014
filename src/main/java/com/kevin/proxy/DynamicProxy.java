@@ -10,6 +10,11 @@ public class DynamicProxy {
 		BookFacadeProxy proxy = new BookFacadeProxy();
 		BookFacade bookProxy = (BookFacade) proxy.bind(new BookFacadeImpl());
 		bookProxy.addBook();
+		bookProxy.deleteBook(12);
+
+		bookProxy = (BookFacade) proxy.bind(new CookBookFacadeImpl());
+		bookProxy.addBook();
+		bookProxy.deleteBook(1);
 	}
 
 }
@@ -18,12 +23,30 @@ interface BookFacade {
 
 	public void addBook();
 
+	public void deleteBook(int id);
+
 }
 
 class BookFacadeImpl implements BookFacade {
 
 	public void addBook() {
 		System.out.println("add book");
+	}
+
+	public void deleteBook(int id) {
+		System.out.println("delete book id=" + id);
+	}
+
+}
+
+class CookBookFacadeImpl implements BookFacade {
+
+	public void addBook() {
+		System.out.println("add cook book");
+	}
+
+	public void deleteBook(int id) {
+		System.out.println("delete cook book id=" + id);
 	}
 
 }
