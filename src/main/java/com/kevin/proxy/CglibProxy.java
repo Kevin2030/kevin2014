@@ -10,8 +10,9 @@ public class CglibProxy {
 
 	public static void main(String[] args) {
 		BookFacadeCglibProxy cglib = new BookFacadeCglibProxy();
-		BookFacadeCglibImpl bookFacade = (BookFacadeCglibImpl) cglib.getInstance(new BookFacadeCglibImpl());
-		bookFacade.addBook();
+		BookFacadeCglib bookFacade = new BookFacadeCglibImpl();
+		BookFacadeCglib bfc = (BookFacadeCglib) cglib.createProxy(bookFacade);
+		bfc.addBook();
 	}
 
 }
@@ -22,7 +23,7 @@ interface BookFacadeCglib {
 
 }
 
-class BookFacadeCglibImpl {
+class BookFacadeCglibImpl implements BookFacadeCglib {
 
 	public void addBook() {
 		System.out.println("add book");
@@ -32,21 +33,32 @@ class BookFacadeCglibImpl {
 
 class BookFacadeCglibProxy implements MethodInterceptor {
 
+	// 要代理的对象
 	private Object target;
 
-	public Object getInstance(Object target) {
+	public Object createProxy(Object target) {
 		this.target = target;
 		Enhancer enhancer = new Enhancer();
 		enhancer.setSuperclass(this.target.getClass());
 		enhancer.setCallback(this);
+		// enhancer.setClassLoader(this.getClass().getClassLoader());
 		return enhancer.create();
 	}
 
-	public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+	public Object intercept(Object proxy, Method method, Object[] params, MethodProxy methodProxy) throws Throwable {
+		Object result = null;
+		doBefore();
+		result = methodProxy.invokeSuper(proxy, params);
+		doAfter();
+		return result;
+	}
+
+	private void doBefore() {
 		System.out.println("add book start");
-		proxy.invoke(obj, args);
-		System.out.println("add book end");
-		return null;
+	}
+
+	private void doAfter() {
+		System.out.println("add book after");
 	}
 
 }
